@@ -1,6 +1,5 @@
 /* globals Promise */
 
-import path from 'path';
 import SeleniumHelper from '../helpers/selenium-helper';
 
 const {
@@ -9,7 +8,8 @@ const {
     clickXpath,
     findByXpath,
     getDriver,
-    getLogs
+    getLogs,
+    makeDriverURL
 } = new SeleniumHelper();
 
 const errorWhitelist = [
@@ -19,7 +19,7 @@ const errorWhitelist = [
 let driver;
 
 describe('player example', () => {
-    const uri = path.resolve(__dirname, '../../build/player.html');
+    const uri = makeDriverURL('build/player.html');
 
     beforeAll(() => {
         driver = getDriver();
@@ -42,7 +42,7 @@ describe('player example', () => {
 });
 
 describe('blocks example', () => {
-    const uri = path.resolve(__dirname, '../../build/blocks-only.html');
+    const uri = makeDriverURL('build/blocks-only.html');
 
     beforeAll(() => {
         driver = getDriver();

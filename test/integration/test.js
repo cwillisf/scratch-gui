@@ -1,4 +1,3 @@
-import path from 'path';
 import SeleniumHelper from '../helpers/selenium-helper';
 
 const {
@@ -7,10 +6,11 @@ const {
     clickXpath,
     findByXpath,
     getDriver,
-    getLogs
+    getLogs,
+    makeDriverURL
 } = new SeleniumHelper();
 
-const uri = path.resolve(__dirname, '../../build/index.html');
+const uri = makeDriverURL('build/index.html');
 
 const errorWhitelist = [
     'The play() request was interrupted by a call to pause()'

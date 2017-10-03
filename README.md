@@ -38,20 +38,54 @@ npm test
 
 Run unit tests in isolation.
 ```bash
-npm run unit-test
+npm run test:unit
 ```
 
 Run unit tests in watch mode (watches for code changes and continuously runs tests). See [jest cli docs](https://facebook.github.io/jest/docs/en/cli.html#content) for more options.
 ```bash
-npm run unit-test -- --watch
+npm run test:unit -- --watch
 ```
 
 Run integration tests in isolation.
 ```bash
-npm run integration-test
+npm run test:integration
 ```
 
 You may want to review the documentation for [Jest](https://facebook.github.io/jest/docs/en/api.html) and [Enzyme](http://airbnb.io/enzyme/docs/api/) as you write your tests.
+
+### Running integration tests on the Windows Subsystem for Linux
+
+As of this writing, the Windows Subsystem for Linux (WSL, also known as "Ubuntu on Windows") does not support all the features necessary to run our integration tests. It's possible to work around this by installing and configuring some extra software.
+
+Initial setup:
+1. Install Java 8: https://www.java.com/download/
+2. Install Chrome: https://www.google.com/chrome/browser/desktop/
+3. Install ChromeDriver: https://sites.google.com/a/chromium.org/chromedriver/
+4. Download the Selenium standalone server: http://www.seleniumhq.org/download/
+
+Running the tests:
+1. In Windows, run this command (replacing `VERSION` with the version you downloaded):
+
+   ```java -jar selenium-server-standalone-VERSION.jar```
+
+2. Look for a message like `INFO - Will listen on 4444` and note the number (the default is 4444).
+3. In Linux, run this command (replacing `4444` with the port number noted above):
+
+   ```export SELENIUM_REMOTE_URL="http://localhost:4444/wd/hub"```
+
+4. You should now be able to run the integration tests:
+
+   ```npm run test:integration```
+
+Troubleshooting:
+- `java.lang.UnsupportedClassVersionError`: you are likely running Java 7. Uninstall Java 7 if you don't need it, or explicitly specify the path to `java.exe` on the command line.
+- `Unable to create new service: ChromeDriverService`: The Chrome web driver, `chromedriver.exe`, is probably not on your `PATH`. There are two ways to fix this:
+  - Add `chromedriver.exe` to your `PATH`, either by adjusting your `PATH` or by moving the file into a location already on your `PATH`.
+  - Tell Selenium how to find `chromedriver.exe`:
+  
+    ```
+    java -Dwebdriver.chrome.driver="/opt/chromium-browser/chromedriver" -jar selenium-server-standalone-VERSION.jar
+    ```
 
 ## Publishing to GitHub Pages
 
