@@ -4,8 +4,12 @@ import bindAll from 'lodash.bindall';
 import VM from 'scratch-vm';
 
 import PaintEditor from 'scratch-paint';
+import SvgRenderer from 'scratch-svg-renderer';
 
 import {connect} from 'react-redux';
+
+// TODO
+const svgRenderer = new SvgRenderer();
 
 class PaintEditorWrapper extends React.Component {
     constructor (props) {
@@ -23,10 +27,15 @@ class PaintEditorWrapper extends React.Component {
     }
     render () {
         if (!this.props.svgId) return null;
+        const svg = this.props.vm.getCostumeSvg(this.props.selectedCostumeIndex);
+        svgRenderer.fromString(svg);
+        const viewOffset = svgRenderer.viewOffset;
         return (
             <PaintEditor
                 {...this.props}
-                svg={this.props.vm.getCostumeSvg(this.props.selectedCostumeIndex)}
+                svg={svg}
+                viewOffsetX={viewOffset[0]}
+                viewOffsetY={viewOffset[1]}
                 onUpdateName={this.handleUpdateName}
                 onUpdateSvg={this.handleUpdateSvg}
             />
