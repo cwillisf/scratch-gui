@@ -10,6 +10,7 @@ import classNames from 'classnames';
 import bluetoothIconURL from './bluetooth.svg';
 import internetConnectionIconURL from './internet-connection.svg';
 
+// eslint-disable-next-line react/prefer-stateless-function
 class LibraryItemComponent extends React.PureComponent {
     render () {
         return this.props.featured ? (

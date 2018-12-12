@@ -5,18 +5,27 @@ import VisibilitySensor from 'react-visibility-sensor';
 import storage from '../../lib/storage';
 
 class ScratchImage extends React.PureComponent {
-    static get pendingImages () {
-        return this._pendingImages || (this._pendingImages = new Set());
+    static fakeStaticConstructor () {
+        this.currentJobs = 0;
+        this.pendingImages = new Set();
+        this.maxParallelism = 6;
+        this.loadPendingImages = this.loadPendingImages.bind(this);
+        this.loadPendingImages2 = this.loadPendingImages2.bind(this);
     }
-    static get maxParallelism () {
-        return this._maxParallelism > 0 ? this._maxParallelism : (this._maxParallelism = 6);
-    }
-
     static loadPendingImages () {
-        if (this._currentJobs >= this.maxParallelism) {
+        if (!this.foo) {
+            this.foo = true;
+            setTimeout(this.loadPendingImages2, 0);
+        }
+    }
+    static loadPendingImages2 () {
+        this.foo = false;
+        if (this.currentJobs >= this.maxParallelism) {
             // already busy
+            console.log(`ScratchImage busy: ${this.currentJobs}`);
             return;
         }
+        console.log(`ScratchImage not busy: ${this.currentJobs}`);
 
         // Find the first visible image. If there aren't any, find the first non-visible image.
         let nextImage;
@@ -36,53 +45,51 @@ class ScratchImage extends React.PureComponent {
         if (nextImage) {
             this.pendingImages.delete(nextImage);
             const imageSource = nextImage.props.imageSource;
-            ++this._currentJobs;
+            ++this.currentJobs;
+            const handler = this.imageWasLoaded.bind(this, nextImage);
             storage
                 .load(imageSource.assetType, imageSource.assetId)
-                .then(asset => {
-                    const dataURI = asset.encodeDataURI();
-                    nextImage.setState({
-                        imageURI: dataURI
-                    });
-                    --this._currentJobs;
-                    this.loadPendingImages();
-                });
+                .then(handler);
+            this.loadPendingImages();
         }
+    }
+    static imageWasLoaded (nextImage, asset) {
+        const dataURI = asset.encodeDataURI();
+        nextImage.setState({imageURI: dataURI});
+        --this.currentJobs;
     }
 
     constructor (props) {
         super(props);
-        this.state = {};
-        Object.assign(this.state, this._loadImageSource(props.imageSource));
+        this.state = {
+            imageURI: props.imageSource.uri // might be null if imageSource.assetId is set instead
+        };
     }
-    componentWillReceiveProps (nextProps) {
-        const newState = this._loadImageSource(nextProps.imageSource);
-        this.setState(newState);
-    }
-    /**
-     * Calculate the state changes necessary to load the image specified in the provided source info. If the component
-     * is mounted, call setState() with the return value of this function. If the component has not yet mounted, use
-     * the return value of this function as initial state for the component.
-     *
-     * @param {object} imageSource - the new source for the image, including either assetId or URI
-     * @returns {object} - the new state values, if any.
-     */
-    _loadImageSource (imageSource) {
-        if (imageSource.uri) {
-            ScratchImage.pendingImages.delete(this);
-            return {
-                imageURI: imageSource.uri,
-                lastRequestedAsset: null
-            };
-        }
-        if (this.state.lastRequestedAsset !== imageSource.assetId) {
+    componentDidMount () {
+        if (this.props.imageSource.assetId) {
             ScratchImage.pendingImages.add(this);
-            return {
-                lastRequestedAsset: imageSource.assetId
-            };
         }
-        // Nothing to do - don't change any state.
-        return {};
+    }
+    componentDidUpdate (prevProps) {
+        if (this.props.imageSource.assetId) {
+            if (this.props.imageSource.assetId !== prevProps.imageSource.assetId) {
+                // we're either changing `assetId` or going from `uri` to `assetId`
+                // if we had an old `assetId`, the load might or might not have finished by now
+                ScratchImage.pendingImages.add(this); // this might be redundant but that's OK since it's a `Set`
+                ScratchImage.loadPendingImages(); // pump the queue in case it's idle
+            }
+        } else { // imageSource.uri must be set
+
+            // remove any pending assetId load we might have in the queue
+            ScratchImage.pendingImages.delete(this);
+
+            if (this.props.imageSource.uri !== prevProps.imageSource.uri) {
+                // eslint doesn't like setting state in this function
+                // the React docs say it's OK as long as it's conditional and doesn't trigger its own condition
+                // eslint-disable-next-line react/no-did-update-set-state
+                this.setState({imageURI: this.props.imageSource.uri});
+            }
+        }
     }
     render () {
         const {
@@ -127,5 +134,7 @@ ScratchImage.propTypes = {
         })
     ]).isRequired
 };
+
+ScratchImage.fakeStaticConstructor();
 
 export default ScratchImage;
