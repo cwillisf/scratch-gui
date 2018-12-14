@@ -120,7 +120,7 @@ const initPreviewInfo = function (currentState) {
         currentState,
         {
             modals: {
-                previewInfo: true
+                previewInfo: false
             }
         }
     );
