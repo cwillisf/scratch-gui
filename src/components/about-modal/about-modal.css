@@ -1,0 +1,47 @@
+@import "../../css/colors.css";
+@import "../../css/units.css";
+@import "../../css/typography.css";
+@import "../../css/z-index.css";
+
+.modal-content {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    text-align: center;
+
+    border: .25rem solid $ui-white-transparent;
+    border-radius: $space;
+    outline: none;
+    overflow: hidden;
+
+    /* center the content in the window */
+    /* warning: margin will mess up the centering! */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+}
+
+.body {
+    color: $text-primary;
+    background: $ui-white;
+    padding: 1.5rem 4rem;
+}
+
+.logo {
+    height: 64px;
+    margin-bottom: 16px;
+}
+
+.version-main {
+    font-size: 100%;
+}
+
+.version-details {
+    font-size: 75%;
+
+    margin: 0 auto;
+}
+
+.version-component {
+    margin: 0.25rem;
+}

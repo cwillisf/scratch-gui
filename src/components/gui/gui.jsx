@@ -30,6 +30,7 @@ import Alerts from '../../containers/alerts.jsx';
 import DragLayer from '../../containers/drag-layer.jsx';
 import ConnectionModal from '../../containers/connection-modal.jsx';
 import TelemetryModal from '../telemetry-modal/telemetry-modal.jsx';
+import AboutModal from '../about-modal/about-modal.jsx';
 
 import layout, {STAGE_SIZE_MODES} from '../../lib/layout-constants';
 import {resolveStageSize} from '../../lib/screen-utils';
@@ -54,6 +55,7 @@ let isRendererSupported = null;
 
 const GUIComponent = props => {
     const {
+        aboutModalVisible,
         accountNavOpen,
         activeTabIndex,
         alertsVisible,
@@ -89,6 +91,7 @@ const GUIComponent = props => {
         isTelemetryEnabled,
         loading,
         logo,
+        productInfo,
         renderLogin,
         onClickAbout,
         onClickAccountNav,
@@ -180,6 +183,9 @@ const GUIComponent = props => {
                 {isRendererSupported ? null : (
                     <WebGlModal isRtl={isRtl} />
                 )}
+                {aboutModalVisible ? (
+                    <AboutModal productInfo={productInfo}/>
+                ) : null}
                 {tipsLibraryVisible ? (
                     <TipsLibrary />
                 ) : null}
@@ -363,6 +369,7 @@ const GUIComponent = props => {
 };
 
 GUIComponent.propTypes = {
+    aboutModalVisible: PropTypes.bool,
     accountNavOpen: PropTypes.bool,
     activeTabIndex: PropTypes.number,
     authorId: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]), // can be false
